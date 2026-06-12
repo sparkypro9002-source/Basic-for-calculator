@@ -43,6 +43,11 @@ def evaluate_expression(expr):
         return res_str[:16] if len(res_str) > 16 else res_str
     except ZeroDivisionError: return "Error: Div by 0"
     except: return "Error"
+def get_current_number(expr):
+    """Extract the current number being typed (after the last operator)"""
+    for op in ["+", "-", "*", "/"]:
+        expr = expr.replace(op, "|")
+    return expr.split("|")[-1]
 while True:
     mouse_pos = pygame.mouse.get_pos()
     for event in pygame.event.get():
@@ -63,6 +68,11 @@ while True:
                             try: expression = str(float(expression) / 100)
                             except: expression = "Error"
                     else:
+                        # BUG FIX #3: Prevent multiple decimal points in the current number
+                        if label == ".":
+                            current_number = get_current_number(expression)
+                            if "." in current_number:
+                                continue  # Skip adding another decimal point
                         if expression in ["Error", "Error: Div by 0"]: expression = ""
                         if len(expression) < 16: expression += label
     screen.fill(BG_COLOR)
